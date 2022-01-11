@@ -12,7 +12,7 @@ public enum ColorDepth {
     BPP_16_TRUE(16, 16, true, 31, 63, 31, 11, 5, 0),
 
     /** 24 bits per pixel true color **/
-    BPP_24_TRUE(32, 24, true, 255, 255, 255, 16, 8, 0);
+    BPP_24_TRUE(32, 24, true, 255, 255, 255, 8, 24, 16);
 
     private final int bitsPerPixel;
     private final int depth;
