@@ -6,6 +6,7 @@ import com.shinyhut.vernacular.protocol.messages.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -48,6 +49,8 @@ public class ClientEventHandler {
                         requestFramebufferUpdate(incremental);
                         incremental = true;
                         session.waitForFramebufferUpdate();
+                    } else {
+                        waitSomeTimeForFramebufferUpdate();
                     }
                 }
             } catch (IOException e) {
@@ -104,6 +107,18 @@ public class ClientEventHandler {
         long updateInterval = 1000 / session.getConfig().getTargetFramesPerSecond();
         return lastFramebufferUpdateRequestTime == null ||
                 now().isAfter(lastFramebufferUpdateRequestTime.plus(updateInterval, MILLIS));
+    }
+
+    private void waitSomeTimeForFramebufferUpdate() {
+        long updateInterval = 1000 / session.getConfig().getTargetFramesPerSecond();
+        LocalDateTime nextUpdate = lastFramebufferUpdateRequestTime.plus(updateInterval, MILLIS);
+        long timeToWait = now().until(nextUpdate, MILLIS);
+        if (timeToWait > 0L) {
+            try {
+                Thread.sleep(timeToWait);
+            } catch (InterruptedException ignored) {
+            }
+        }
     }
 
     private void requestFramebufferUpdate(boolean incremental) throws IOException {
